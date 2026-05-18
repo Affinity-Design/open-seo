@@ -8,13 +8,18 @@
   "observability": {
     "enabled": true,
   },
-  // Uncomment when deploying to the openseo.so Cloudflare account. Self-hosters
-  // should leave this commented (or replace with their own zone) - otherwise
-  // `wrangler deploy` fails with "Could not find zone for app.openseo.so".
-  // "routes": [
-  //   { "pattern": "app.openseo.so", "custom_domain": true },
-  //   { "pattern": "www.app.openseo.so", "custom_domain": true },
-  // ],
+  "routes": [
+    {
+      "pattern": "seo.affinitydesign.ca",
+      "zone_name": "affinitydesign.ca",
+      "custom_domain": true,
+    },
+  ],
+  "vars": {
+    "AUTH_MODE": "cloudflare_access",
+    "TEAM_DOMAIN": "https://ai-agency.cloudflareaccess.com",
+    "POLICY_AUD": "d9306a9d10ebda435e1129de375e830c15a3f6df73829a88cb1fca533ccfffdd",
+  },
   "workflows": [
     {
       "name": "site-audit-workflow",
