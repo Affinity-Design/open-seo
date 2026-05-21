@@ -300,10 +300,28 @@ function TopNav({
 }
 
 function AccountMenu({ mobileOnly = false }: { mobileOnly?: boolean }) {
+  if (!isHostedClientAuthMode()) {
+    return <AccountMenuContent email={null} mobileOnly={mobileOnly} />;
+  }
+
+  return <HostedAccountMenu mobileOnly={mobileOnly} />;
+}
+
+function HostedAccountMenu({ mobileOnly = false }: { mobileOnly?: boolean }) {
   const { data: session } = useSession();
-  const isHostedMode = isHostedClientAuthMode();
   const email = session?.user?.email;
 
+  return <AccountMenuContent email={email ?? null} mobileOnly={mobileOnly} />;
+}
+
+function AccountMenuContent({
+  email,
+  mobileOnly = false,
+}: {
+  email: string | null;
+  mobileOnly?: boolean;
+}) {
+  const isHostedMode = isHostedClientAuthMode();
   const handleSignOut = () => signOutAndRedirect();
 
   const menu = (

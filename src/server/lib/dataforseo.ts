@@ -12,6 +12,7 @@ import { env } from "cloudflare:workers";
 import { z } from "zod";
 import type { DataforseoApiResponse } from "@/server/lib/dataforseoCost";
 import { AppError } from "@/server/lib/errors";
+import { resolveDataforseoBasicToken } from "@/server/lib/dataforseoCredentials";
 import {
   dataforseoResponseSchema,
   domainMetricsItemSchema,
@@ -46,7 +47,10 @@ export type {
 function createAuthenticatedFetch() {
   return async (url: RequestInfo, init?: RequestInit): Promise<Response> => {
     const headers = new Headers(init?.headers);
-    headers.set("Authorization", `Basic ${env.DATAFORSEO_API_KEY}`);
+    headers.set(
+      "Authorization",
+      `Basic ${resolveDataforseoBasicToken(env.DATAFORSEO_API_KEY)}`,
+    );
 
     const newInit: RequestInit = {
       ...init,

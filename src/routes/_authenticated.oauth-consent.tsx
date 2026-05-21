@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Check, Database, KeyRound, User } from "lucide-react";
 import { useState } from "react";
 import { useSession } from "@/lib/auth-client";
+import { isHostedClientAuthMode } from "@/lib/auth-mode";
 
 export const Route = createFileRoute("/_authenticated/oauth-consent")({
   component: OAuthConsentPage,
@@ -21,11 +22,8 @@ const SCOPES = [
 ];
 
 function OAuthConsentPage() {
-  const { data: session } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const userEmail = session?.user?.email ?? null;
 
   async function respond(accept: boolean) {
     setError(null);
@@ -75,17 +73,7 @@ function OAuthConsentPage() {
         </p>
       </div>
 
-      {userEmail ? (
-        <div className="mt-6 flex items-center gap-3 rounded-lg border border-base-300 bg-base-200/50 px-3 py-2 text-sm">
-          <div className="flex size-7 items-center justify-center rounded-full bg-base-300">
-            <User className="size-4" />
-          </div>
-          <div className="flex-1">
-            <div className="text-xs text-base-content/60">Signed in as</div>
-            <div className="font-medium">{userEmail}</div>
-          </div>
-        </div>
-      ) : null}
+      {isHostedClientAuthMode() ? <HostedSignedInAs /> : null}
 
       <div className="mt-6">
         <div className="text-xs font-medium uppercase tracking-wide text-base-content/60">
@@ -134,6 +122,27 @@ function OAuthConsentPage() {
       <p className="mt-6 text-center text-xs text-base-content/50">
         You can revoke access at any time in Settings.
       </p>
+    </div>
+  );
+}
+
+function HostedSignedInAs() {
+  const { data: session } = useSession();
+  const userEmail = session?.user?.email ?? null;
+
+  if (!userEmail) {
+    return null;
+  }
+
+  return (
+    <div className="mt-6 flex items-center gap-3 rounded-lg border border-base-300 bg-base-200/50 px-3 py-2 text-sm">
+      <div className="flex size-7 items-center justify-center rounded-full bg-base-300">
+        <User className="size-4" />
+      </div>
+      <div className="flex-1">
+        <div className="text-xs text-base-content/60">Signed in as</div>
+        <div className="font-medium">{userEmail}</div>
+      </div>
     </div>
   );
 }

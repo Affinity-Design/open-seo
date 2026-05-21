@@ -1,4 +1,9 @@
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+  Link,
+  createFileRoute,
+  notFound,
+  useNavigate,
+} from "@tanstack/react-router";
 import { AutumnProvider, useCustomer } from "autumn-js/react";
 import { useEffect, useState } from "react";
 import { ArrowRight, Settings, User } from "lucide-react";
@@ -9,8 +14,14 @@ import { getStandardErrorMessage } from "@/client/lib/error-messages";
 import { getSubscribeRouteState } from "@/client/features/billing/route-state";
 import { getCustomerPlanStatus } from "@/client/features/billing/plan-detection";
 import { AUTUMN_PAID_PLAN_ID } from "@/shared/billing";
+import { isHostedClientAuthMode } from "@/lib/auth-mode";
 
 export const Route = createFileRoute("/_authenticated/subscribe")({
+  beforeLoad: () => {
+    if (!isHostedClientAuthMode()) {
+      throw notFound();
+    }
+  },
   validateSearch: (search: Record<string, unknown>) => ({
     upgrade:
       search.upgrade === true || search.upgrade === "true" ? true : undefined,

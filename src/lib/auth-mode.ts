@@ -22,3 +22,7 @@ export function isHostedClientAuthMode() {
   // AUTH_MODE=hosted in both the client build environment and the runtime.
   return isHostedAuthMode(import.meta.env.AUTH_MODE);
 }
+
+export function isCloudflareAccessClientAuthMode() {
+  return getAuthMode(import.meta.env.AUTH_MODE) === "cloudflare_access";
+}

@@ -22,34 +22,17 @@ import {
 import { NotFound } from "@/client/components/NotFound";
 import appCss from "@/client/styles/app.css?url";
 import { useSession } from "@/lib/auth-client";
-import { isHostedClientAuthMode } from "@/lib/auth-mode";
+import {
+  isCloudflareAccessClientAuthMode,
+  isHostedClientAuthMode,
+} from "@/lib/auth-mode";
 import { Toaster } from "sonner";
 import { queryClient } from "@/client/tanstack-db";
 import { getActiveOrganizationId } from "@/lib/auth-session";
 
 export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      {
-        title: "OpenSEO",
-      },
-      {
-        charSet: "utf-8",
-      },
-      {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1, viewport-fit=cover",
-      },
-      {
-        name: "apple-mobile-web-app-capable",
-        content: "yes",
-      },
-      {
-        name: "apple-mobile-web-app-status-bar-style",
-        content: "black-translucent",
-      },
-    ],
-    links: [
+  head: () => {
+    const links = [
       { rel: "stylesheet", href: appCss },
       {
         rel: "apple-touch-icon",
@@ -69,10 +52,41 @@ export const Route = createRootRoute({
         href: "/favicon-16x16.png",
       },
       { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
-      { rel: "manifest", href: "/site.webmanifest" },
-    ],
-    scripts: [],
-  }),
+    ];
+
+    if (!isCloudflareAccessClientAuthMode()) {
+      links.push({ rel: "manifest", href: "/site.webmanifest" });
+    }
+
+    return {
+      meta: [
+        {
+          title: "OpenSEO",
+        },
+        {
+          charSet: "utf-8",
+        },
+        {
+          name: "viewport",
+          content: "width=device-width, initial-scale=1, viewport-fit=cover",
+        },
+        {
+          name: "apple-mobile-web-app-capable",
+          content: "yes",
+        },
+        {
+          name: "mobile-web-app-capable",
+          content: "yes",
+        },
+        {
+          name: "apple-mobile-web-app-status-bar-style",
+          content: "black-translucent",
+        },
+      ],
+      links,
+      scripts: [],
+    };
+  },
   component: AppLayout,
   errorComponent: DefaultCatchBoundary,
   notFoundComponent: () => <NotFound />,
@@ -85,6 +99,15 @@ function AppLayout() {
 
 function PostHogBootstrap() {
   const isHostedMode = isHostedClientAuthMode();
+
+  if (!isHostedMode) {
+    return null;
+  }
+
+  return <HostedPostHogBootstrap />;
+}
+
+function HostedPostHogBootstrap() {
   const { data: session, isPending: isSessionPending } = useSession();
   const userId = session?.user?.id ?? null;
   const optedOut = session?.user?.analyticsOptedOut === true;
@@ -92,7 +115,7 @@ function PostHogBootstrap() {
   const previousUserIdRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
-    if (!isHostedMode || isSessionPending) {
+    if (isSessionPending) {
       return;
     }
 
@@ -106,7 +129,7 @@ function PostHogBootstrap() {
       previousUserIdRef.current = null;
       resetAnalyticsUser();
     }
-  }, [isHostedMode, isSessionPending, optedOut, organizationId, userId]);
+  }, [isSessionPending, optedOut, organizationId, userId]);
 
   return null;
 }

@@ -4,6 +4,8 @@ const STANDARD_MESSAGES: Record<ErrorCode, string> = {
   UNAUTHENTICATED: "Please sign in and try again.",
   AUTH_CONFIG_MISSING:
     "OpenSEO auth is not configured. Follow the README setup steps for Cloudflare Access.",
+  DATAFORSEO_CONFIG_ERROR:
+    "DataForSEO is not configured correctly. Add a complete DataForSEO login and password in your deployment secrets.",
   PAYMENT_REQUIRED:
     "An active hosted subscription is required before you can use OpenSEO.",
   INSUFFICIENT_CREDITS:

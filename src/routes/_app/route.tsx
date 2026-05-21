@@ -13,12 +13,23 @@ export const Route = createFileRoute("/_app")({
 });
 
 function AppRouteLayout() {
+  if (!isHostedClientAuthMode()) {
+    return (
+      <AuthenticatedAppLayout>
+        <Outlet />
+      </AuthenticatedAppLayout>
+    );
+  }
+
+  return <HostedAppRouteLayout />;
+}
+
+function HostedAppRouteLayout() {
   const navigate = useNavigate();
   const { data: session, isPending } = useSession();
-  const isHostedMode = isHostedClientAuthMode();
 
   useEffect(() => {
-    if (isPending || !isHostedMode || session?.user?.id) {
+    if (isPending || session?.user?.id) {
       return;
     }
 
@@ -29,9 +40,9 @@ function AppRouteLayout() {
       ),
       replace: true,
     });
-  }, [isPending, isHostedMode, session?.user?.id, navigate]);
+  }, [isPending, session?.user?.id, navigate]);
 
-  if (isHostedMode && (isPending || !session?.user?.id)) {
+  if (isPending || !session?.user?.id) {
     return null;
   }
 

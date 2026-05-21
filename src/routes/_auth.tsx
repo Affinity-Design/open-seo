@@ -14,10 +14,21 @@ export const Route = createFileRoute("/_auth")({
 });
 
 function AuthPageLayout() {
+  if (!isHostedClientAuthMode()) {
+    return (
+      <AuthPageShell>
+        <Outlet />
+      </AuthPageShell>
+    );
+  }
+
+  return <HostedAuthPageLayout />;
+}
+
+function HostedAuthPageLayout() {
   const search = Route.useSearch();
   const navigate = useNavigate();
   const { data: session, isPending } = useSession();
-  const isHostedMode = isHostedClientAuthMode();
   const redirectTo = getCurrentAuthRedirect(search.redirect);
 
   useEffect(() => {
@@ -28,7 +39,7 @@ function AuthPageLayout() {
     void navigate({ href: redirectTo, replace: true });
   }, [navigate, redirectTo, session?.user?.id]);
 
-  if (isHostedMode && (isPending || session?.user?.id)) {
+  if (isPending || session?.user?.id) {
     return null;
   }
 

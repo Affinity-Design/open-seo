@@ -9,12 +9,23 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function AuthenticatedShellLayout() {
+  if (!isHostedClientAuthMode()) {
+    return (
+      <AuthPageShell>
+        <Outlet />
+      </AuthPageShell>
+    );
+  }
+
+  return <HostedAuthenticatedShellLayout />;
+}
+
+function HostedAuthenticatedShellLayout() {
   const navigate = useNavigate();
   const { data: session, isPending } = useSession();
-  const isHostedMode = isHostedClientAuthMode();
 
   useEffect(() => {
-    if (isPending || !isHostedMode) return;
+    if (isPending) return;
     if (!session?.user?.id) {
       void navigate({
         to: "/sign-in",
@@ -23,9 +34,9 @@ function AuthenticatedShellLayout() {
         },
       });
     }
-  }, [isPending, isHostedMode, session?.user?.id, navigate]);
+  }, [isPending, session?.user?.id, navigate]);
 
-  if (!isHostedMode || isPending || !session?.user?.id) {
+  if (isPending || !session?.user?.id) {
     return null;
   }
 

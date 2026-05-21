@@ -17,6 +17,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import { useSession } from "@/lib/auth-client";
+import { isHostedClientAuthMode } from "@/lib/auth-mode";
 import { getCustomerPlanStatus } from "@/client/features/billing/plan-detection";
 import { captureClientEvent } from "@/client/lib/posthog";
 import { FreePlanAlert } from "./FreePlanAlert";
@@ -62,19 +63,18 @@ export function RankTrackingDomainDetail(props: {
   onBack: () => void;
   onEdit: () => void;
 }) {
+  if (!isHostedClientAuthMode()) {
+    return <RankTrackingDomainDetailInner {...props} isFreePlan={false} />;
+  }
+
   return (
     <AutumnProvider>
-      <RankTrackingDomainDetailInner {...props} />
+      <HostedRankTrackingDomainDetail {...props} />
     </AutumnProvider>
   );
 }
 
-function RankTrackingDomainDetailInner({
-  config,
-  projectId,
-  onBack,
-  onEdit,
-}: {
+function HostedRankTrackingDomainDetail(props: {
   config: RankTrackingConfig;
   projectId: string;
   onBack: () => void;
@@ -88,6 +88,22 @@ function RankTrackingDomainDetailInner({
     !!customerQuery.data &&
     getCustomerPlanStatus(customerQuery.data) === "free";
 
+  return <RankTrackingDomainDetailInner {...props} isFreePlan={isFreePlan} />;
+}
+
+function RankTrackingDomainDetailInner({
+  config,
+  projectId,
+  onBack,
+  onEdit,
+  isFreePlan,
+}: {
+  config: RankTrackingConfig;
+  projectId: string;
+  onBack: () => void;
+  onEdit: () => void;
+  isFreePlan: boolean;
+}) {
   const queryClient = useQueryClient();
   const [showAddKeywords, setShowAddKeywords] = useState(false);
   const [showFilters, setShowFilters] = useState(false);

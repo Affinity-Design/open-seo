@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { AutumnProvider, useCustomer } from "autumn-js/react";
 import { useSession } from "@/lib/auth-client";
+import { isHostedClientAuthMode } from "@/lib/auth-mode";
 import { getCustomerPlanStatus } from "@/client/features/billing/plan-detection";
 import {
   AUTUMN_SEO_DATA_BALANCE_FEATURE_ID,
@@ -12,6 +13,10 @@ import {
 } from "@/shared/billing";
 
 export function FreePlanBanner() {
+  if (!isHostedClientAuthMode()) {
+    return null;
+  }
+
   return (
     <AutumnProvider>
       <FreePlanBannerContent />

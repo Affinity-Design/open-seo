@@ -98,9 +98,39 @@ function getVerifyEmailPageCopy({
 }
 
 function VerifyEmailPage() {
+  if (!isHostedClientAuthMode()) {
+    const search = Route.useSearch();
+    const redirectTo = normalizeAuthRedirect(search.redirect);
+
+    return (
+      <AuthPageShell>
+        <AuthPageCard
+          title="Verify email"
+          helperText="Email confirmation isn't available right now."
+          footer={
+            <p className="text-sm">
+              <Link
+                to="/sign-in"
+                search={getSignInSearch(redirectTo)}
+                className="text-base-content/50 hover:text-base-content transition-colors"
+              >
+                Back to sign in
+              </Link>
+            </p>
+          }
+        >
+          {null}
+        </AuthPageCard>
+      </AuthPageShell>
+    );
+  }
+
+  return <HostedVerifyEmailPage />;
+}
+
+function HostedVerifyEmailPage() {
   const search = Route.useSearch();
   const redirectTo = normalizeAuthRedirect(search.redirect);
-  const isHostedMode = isHostedClientAuthMode();
   const { data: session, isPending } = useSession();
   const errorMessage = getVerificationErrorMessage(search.error);
   const verificationIssueType = search.error
@@ -111,7 +141,7 @@ function VerifyEmailPage() {
   const [isResending, setIsResending] = useState(false);
   const isVerified = !!session?.user?.emailVerified;
   const pageCopy = getVerifyEmailPageCopy({
-    isHostedMode,
+    isHostedMode: true,
     errorMessage,
     isWaiting,
     isPending,
@@ -189,7 +219,7 @@ function VerifyEmailPage() {
           </p>
         }
       >
-        {!isHostedMode ? null : errorMessage ? (
+        {errorMessage ? (
           <div className="space-y-3">
             <div className="alert alert-error">
               <span>{errorMessage}</span>
