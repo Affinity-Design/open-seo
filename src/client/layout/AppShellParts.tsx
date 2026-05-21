@@ -4,13 +4,38 @@ import { AlertTriangle, ExternalLink } from "lucide-react";
 import { Sidebar } from "@/client/components/Sidebar";
 import { dataforseoHelpLinkOptions } from "@/client/navigation/items";
 
+type DataforseoApiKeyIssue = "missing" | "invalid" | null;
+
+function getDataforseoSetupCopy(issue: DataforseoApiKeyIssue) {
+  if (issue === "invalid") {
+    return {
+      banner:
+        "Setup needed: your DataForSEO API key is incomplete. Save the base64 value of login:password in DATAFORSEO_API_KEY.",
+      modalTitle: "DataForSEO key needs the password",
+      modalDescription:
+        "The DATAFORSEO_API_KEY secret exists, but it does not decode to a complete login:password pair.",
+    };
+  }
+
+  return {
+    banner:
+      "Setup needed: add your DataForSEO API key to use OpenSEO features.",
+    modalTitle: "One quick setup step",
+    modalDescription: "Add your DataForSEO API key to start using OpenSEO.",
+  };
+}
+
 function SeoApiStatusBanners({
   shouldShowSeoApiWarning,
+  seoApiKeyStatusIssue,
   seoApiKeyStatusError,
 }: {
   shouldShowSeoApiWarning: boolean;
+  seoApiKeyStatusIssue: DataforseoApiKeyIssue;
   seoApiKeyStatusError: boolean;
 }) {
+  const setupCopy = getDataforseoSetupCopy(seoApiKeyStatusIssue);
+
   return (
     <>
       {shouldShowSeoApiWarning ? (
@@ -19,8 +44,7 @@ function SeoApiStatusBanners({
             <div className="alert alert-warning">
               <AlertTriangle className="size-4 shrink-0" />
               <span className="text-sm">
-                Setup needed: add your DataForSEO API key to use OpenSEO
-                features. See the quick steps on the{" "}
+                {setupCopy.banner} See the quick steps on the{" "}
                 <Link
                   {...dataforseoHelpLinkOptions}
                   className="link link-primary font-medium"
@@ -104,10 +128,13 @@ const MissingSeoSetupModal = React.forwardRef<
   HTMLDivElement,
   {
     isOpen: boolean;
+    issue: DataforseoApiKeyIssue;
     onClose: () => void;
   }
->(({ isOpen, onClose }, ref) => {
+>(({ isOpen, issue, onClose }, ref) => {
   if (!isOpen) return null;
+
+  const setupCopy = getDataforseoSetupCopy(issue);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -129,13 +156,13 @@ const MissingSeoSetupModal = React.forwardRef<
               id="dataforseo-setup-title"
               className="text-lg font-semibold text-base-content"
             >
-              One quick setup step
+              {setupCopy.modalTitle}
             </h2>
             <p
               id="dataforseo-setup-description"
               className="text-sm text-base-content/75"
             >
-              Add your DataForSEO API key to start using OpenSEO.
+              {setupCopy.modalDescription}
             </p>
           </div>
         </div>

@@ -54,6 +54,9 @@ export function AuthenticatedAppLayout({
   const isSeoApiKeyConfigured = shouldCheckSeoApiKeyStatus
     ? (seoApiKeyStatusQuery.data?.configured ?? null)
     : null;
+  const seoApiKeyStatusIssue = shouldCheckSeoApiKeyStatus
+    ? (seoApiKeyStatusQuery.data?.issue ?? null)
+    : null;
   const seoApiKeyStatusError =
     shouldCheckSeoApiKeyStatus && seoApiKeyStatusQuery.isError;
 
@@ -120,6 +123,7 @@ export function AuthenticatedAppLayout({
 
       <SeoApiStatusBanners
         shouldShowSeoApiWarning={shouldShowSeoApiWarning}
+        seoApiKeyStatusIssue={seoApiKeyStatusIssue}
         seoApiKeyStatusError={seoApiKeyStatusError}
       />
 
@@ -136,6 +140,7 @@ export function AuthenticatedAppLayout({
       <MissingSeoSetupModal
         ref={setupModalRef}
         isOpen={shouldShowMissingSeoApiKeyModal}
+        issue={seoApiKeyStatusIssue}
         onClose={() => setShowMissingSeoApiKeyModal(false)}
       />
     </div>

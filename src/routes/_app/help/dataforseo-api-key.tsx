@@ -44,6 +44,19 @@ function DataforseoApiKeyHelpPage() {
                 <pre className="mt-2 p-3 rounded bg-base-200 border border-base-300 overflow-x-auto text-xs">
                   <code>printf '%s' 'YOUR_LOGIN:YOUR_PASSWORD' | base64</code>
                 </pre>
+                <p className="mt-2 text-xs text-base-content/60">
+                  On PowerShell, use:
+                </p>
+                <pre className="mt-2 p-3 rounded bg-base-200 border border-base-300 overflow-x-auto text-xs">
+                  <code>
+                    [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes(&quot;YOUR_LOGIN:YOUR_PASSWORD&quot;))
+                  </code>
+                </pre>
+              </li>
+              <li>
+                Make sure the decoded value has text on both sides of the colon.{" "}
+                <code>YOUR_LOGIN:</code> is incomplete and will be shown as not
+                configured.
               </li>
               <li>
                 Save the output as the <code>DATAFORSEO_API_KEY</code> secret in
